@@ -152,8 +152,7 @@
    * @param {function} callback The callback to fire after dropping the data
    */
   Store.prototype.drop = function (callback) {
-    localStorage[this._dbName] = JSON.stringify({todos: []});
-    callback.call(this, JSON.parse(localStorage[this._dbName]).todos);
+    chrome.storage.local.clear();
   };
 
   // Export to window
