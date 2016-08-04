@@ -203,49 +203,32 @@
    *                          or not
    * @param {boolean|undefined} silent Prevent re-filtering the todo items
    */
-  Controller.prototype.toggleComplete = function (id, checkbox, silent) {
-    var completed = checkbox.checked ? 1 : 0;
+   Controller.prototype.toggleComplete = function (ids, checkbox, silent) {
+   var completed = checkbox.checked ? 1 : 0;
+   this.model.update(ids, { completed: completed }, function () {
+     if ( ids.constructor != Array ) {
+       ids = [ ids ];
+     }
+     ids.forEach( function(id) {
+       var listItem = $$('[data-id="' + id + '"]');
 
-    this.model.update(id, { completed: completed }, function () {
-      var listItem = $$('[data-id="' + id + '"]');
+       if (!listItem) {
+         return;
+       }
 
-      if (!listItem) {
-        return;
-      }
+       listItem.className = completed ? 'completed' : '';
 
-      listItem.className = completed ? 'completed' : '';
+       // In case it was toggled from an event and not by clicking the checkbox
+       listItem.querySelector('input').checked = completed;
+     });
 
-      // In case it was toggled from an event and not by clicking the checkbox
-      listItem.querySelector('input').checked = completed;
-    });
+     if (!silent) {
+       this._filter();
+     }
 
-    if (!silent) {
-      this._filter();
-    }
-  };
+   }.bind(this));
 
-  /**
-   * Will toggle ALL checkboxe's on/off state and completeness of models.
-   * Just pass in the event object.
-   *
-   * @param {object} e The event object
-   */
-  Controller.prototype.toggleAll = function (e) {
-    var completed = e.target.checked ? 1 : 0;
-    var query = 0;
-
-    if (completed === 0) {
-      query = 1;
-    }
-
-    this.model.read({ completed: query }, function (data) {
-      data.forEach(function (item) {
-        this.toggleComplete(item.id, e.target, true);
-      }.bind(this));
-    }.bind(this));
-
-    this._filter();
-  };
+ };
 
   /**
    * Updates the pieces of the page which change depending on the remaining

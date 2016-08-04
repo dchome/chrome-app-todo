@@ -82,7 +82,7 @@
    */
   Store.prototype.save = function (id, updateData, callback) {
     chrome.storage.local.get(this._dbName, function(storage) {
-      var data = storage[this._dbName]);
+      var data = storage[this._dbName];
       var todos = data.todos;
 
       callback = callback || function () {};
