@@ -128,18 +128,22 @@
    * @param {function} callback The callback to fire after saving
    */
   Store.prototype.remove = function (id, callback) {
-    var data = JSON.parse(localStorage[this._dbName]);
-    var todos = data.todos;
-
-    for (var i = 0; i < todos.length; i++) {
-      if (todos[i].id == id) {
-        todos.splice(i, 1);
-        break;
-      }
-    }
-
-    localStorage[this._dbName] = JSON.stringify(data);
-    callback.call(this, JSON.parse(localStorage[this._dbName]).todos);
+    chrome.storage.local.get(this._dbName, function(storage) {
+      var data = storage[this._dbName];
+      var todos = data.todos;
+      var ids = [].concat(id);
+      ids.forEach(function(id){
+        for (var i = 0; i < todos.length; i++) {
+          if (todos[i].id == id) {
+            todos.splice(i, 1);
+            break;
+          }
+        }
+      });
+      chrome.storage.local.set(storage, function(){
+        callback.call(this, todos)
+      }.bind(this));
+    }.bind(this));
   };
 
   /**

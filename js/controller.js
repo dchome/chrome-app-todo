@@ -175,7 +175,11 @@
    */
   Controller.prototype.removeItem = function (id) {
     this.model.remove(id, function () {
-      this.$todoList.removeChild($$('[data-id="' + id + '"]'));
+      var ids = [].concat(id);
+      ids.forEach( function(id) {
+        this.$todoList.removeChild($$('[data-id="' + id + '"]'));
+      }.bind(this));
+      this._filter();
     }.bind(this));
 
     this._filter();
@@ -186,9 +190,11 @@
    */
   Controller.prototype.removeCompletedItems = function () {
     this.model.read({ completed: 1 }, function (data) {
+      var ids = [];
       data.forEach(function (item) {
-        this.removeItem(item.id);
+        ids.push(item.id)
       }.bind(this));
+      this.removeItem(ids);
     }.bind(this));
 
     this._filter();
